@@ -92,7 +92,7 @@ cwe_weaknesses = [
 ]
 
 
-model_path = ""
+model_path = "SO_model.bin"
 try:
     word_vect = KeyedVectors.load_word2vec_format(model_path, binary=True)
     print("Word vectors loaded successfully.")
