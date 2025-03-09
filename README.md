@@ -10,7 +10,7 @@ SecureReviewer is a novel approach designed to enhance LLMs' ability to identify
 ### collect_dataset/
 This directory contains scripts for data collection and refinement through:
 - Keyword matching to extract explicitly mentioned security weaknesses in review comments
-- Semantic embedding matching to identify review comments indicating security issues without specific keywords
+- Semantic embedding matching using SO_word2vec (trained on Stack Overflow posts) to identify review comments indicating security issues without specific keywords
 - LLM-based filtering and formatting prompts to ensure high-quality review comments
 
 ### dataset/
@@ -56,7 +56,7 @@ pip install -r requirements.txt
 3. Run the data collection scripts:
 ```bash
 python keyword.py
-python embedding.py
+python embedding.py  //# Uses SO_word2vec model trained on Stack Overflow posts
 ```
 4. Use the provided prompts to filter(llm judge.md) and format(llm Refining.md) the collected review comments
 
