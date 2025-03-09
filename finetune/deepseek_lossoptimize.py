@@ -158,9 +158,7 @@ def build_backtick_mask_via_offsets(target_text: str, tokenizer):
     )
     input_ids = encoded["input_ids"]
     offsets = encoded["offset_mapping"] 
-
     mask = [0] * len(input_ids)
-
     for (start_char, end_char) in bt_pairs:
         for i, (tok_start, tok_end) in enumerate(offsets):
             if tok_end > start_char and tok_start < end_char:
@@ -177,13 +175,8 @@ def train_tokenize_function(examples: Dict, tokenizer) -> Dict:
         for instruction in examples['patch']
     ]
     targets = [f"{output}\n{EOT_TOKEN}" for output in examples['comment']]
-    
-
     data_dict = preprocess(sources, targets, tokenizer)
-
     backtick_masks = []
-
-
     for (inp_ids, source_text, target_text) in zip(
         data_dict['input_ids'],
         sources,
@@ -203,14 +196,11 @@ def train_tokenize_function(examples: Dict, tokenizer) -> Dict:
                 full_mask[source_len + i] = val
 
         backtick_masks.append(full_mask)
-
     security_masks = []
     for input_ids, source, target in zip(data_dict['input_ids'], sources, targets):
         full_prompt = source + target
         sec_mask = create_security_mask(input_ids, tokenizer, full_prompt)
         security_masks.append(sec_mask)
-
-
     data_dict['security_mask'] = security_masks
     data_dict['backtick_mask'] = backtick_masks
 
@@ -228,18 +218,12 @@ class DataCollatorForSupervisedDataset(object):
             [instance[key] for instance in instances]
             for key in ("input_ids", "labels", "backtick_mask","security_mask")
         )
-
-
         input_ids = [torch.tensor(x) for x in input_ids]
         input_ids = torch.nn.utils.rnn.pad_sequence(
             input_ids, batch_first=True, padding_value=self.tokenizer.pad_token_id
         )
-
- 
         labels = [torch.tensor(x) for x in labels]
         labels = torch.nn.utils.rnn.pad_sequence(labels, batch_first=True, padding_value=IGNORE_INDEX)
-
-      
         backtick_masks = [torch.tensor(x) for x in backtick_masks]
         backtick_masks = torch.nn.utils.rnn.pad_sequence(backtick_masks, batch_first=True, padding_value=0)
         security_masks = [torch.tensor(x) for x in security_masks]
@@ -257,19 +241,14 @@ class CustomTrainer(Trainer):
        def compute_loss(self, model, inputs, return_outputs=False,num_items_in_batch=None):
         labels = inputs.get("labels")
         security_mask = inputs.get("security_mask", None)
-        backtick_mask = inputs.get("backtick_mask", None)  # [batch_size, seq_len]
+        backtick_mask = inputs.get("backtick_mask", None)  
         outputs = model(**inputs)
         logits = outputs.logits.float()
 
-    
         shift_logits = logits[..., :-1, :].contiguous()
         shift_labels = labels[..., 1:].contiguous()
-
         shift_bt_mask = backtick_mask[..., 1:].contiguous() if backtick_mask is not None else None
         shift_st_mask = security_mask[..., 1:].contiguous() if security_mask is not None else None
-
-
-
         loss_fct = CrossEntropyLoss(reduction="none", ignore_index=IGNORE_INDEX)
         loss_tensor = loss_fct(
             shift_logits.view(-1, shift_logits.size(-1)),
@@ -278,7 +257,6 @@ class CustomTrainer(Trainer):
         batch_size, seq_len, _ = shift_logits.shape
         loss_tensor = loss_tensor.view(batch_size, seq_len)
         valid_mask = (shift_labels != IGNORE_INDEX).float()
-
         weighted_loss_tensor = loss_tensor
 
         factor_bt =2
@@ -309,8 +287,8 @@ def train():
         tokenizer.pad_token = tokenizer.eos_token
 
 
-    train_data_file_path = "train.jsonl"
-    test_data_file_path  = "test.jsonl"
+    train_data_file_path = "../dataset/train.jsonl"
+    test_data_file_path  = "../dataset/valid.jsonl"
     train_data = load_dataset("json", data_files=train_data_file_path, split="train")
     eval_data  = load_dataset("json", data_files=test_data_file_path,  split="train")
 
@@ -424,7 +402,7 @@ def train():
 
 if __name__ == "__main__":
 
-    FINETUNE_MODEL_PATH = f''
+    FINETUNE_MODEL_PATH = ''
     base_model = "deepseek-coder-6.7b-instruct"
 
     train()
