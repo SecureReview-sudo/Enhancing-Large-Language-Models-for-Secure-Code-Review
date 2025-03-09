@@ -31,7 +31,6 @@ output_file_path = ''
 
 matched_records = []
 stemmer = PorterStemmer()
-
 def preprocess_text(text):
     text = text.lower()
     text = ''.join([char for char in text if char not in string.punctuation])
@@ -40,7 +39,6 @@ def preprocess_text(text):
     return ' '.join(stemmed_tokens)
 
 def match_keywords(text, keywords_dict):
-
     processed_text = preprocess_text(text)
     matches = {}
     
@@ -50,7 +48,7 @@ def match_keywords(text, keywords_dict):
 
         for i, keyword in enumerate(keywords):
             processed_keyword = processed_keywords[i]
-            if re.search(r'\b' + re.escape(processed_keyword) + r'\b', processed_text):
+            if re.search(r'\b' + re.escape(processed_keyword) + r'\b', processed_text, re.IGNORECASE):
                 matched_keywords.append(keyword)
         
         if matched_keywords:
