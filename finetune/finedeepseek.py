@@ -187,8 +187,8 @@ def train():
     deepspeed='ds_config_zero3.json',
 )
 
-    train_data_file_path = "train.jsonl"
-    test_data_file_path = "test.jsonl"
+    train_data_file_path = "../dataset/train.jsonl"
+    test_data_file_path ="../dataset/test.jsonl"
     train_data = load_dataset("json", data_files=train_data_file_path, split="train")
     eval_data = load_dataset("json", data_files=test_data_file_path, split="train")
     train_data = train_data.shuffle(seed=42)
