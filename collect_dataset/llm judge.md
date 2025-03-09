@@ -1,5 +1,5 @@
 ```markdown
-I am analyzing a code change patch and need to verify if the security description accurately describes the security issues in the patch.
+I am analyzing a code change patch and need to verify if the code review comment accurately describes the security issues in the patch.
 
 CODE CHANGE PATCH:
 {patch}
