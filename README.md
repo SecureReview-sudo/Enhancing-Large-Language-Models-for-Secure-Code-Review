@@ -1,42 +1,88 @@
 # SecureReviewer: Enhancing Large Language Models for Secure Code Review
 
 ## Introduction
-Providing personalized and timely feedback for programming assignments is useful for programming education. Automated program repair (APR) techniques have been used to fix the bugs in programming assignments, where the Large Language Models (LLMs) based approaches have shown promising results. Given the growing complexity of identifying and fixing errors in advanced programming assignments, current fine-tuning strategies for APR are inadequate in guiding the LLM to identify errors and make accurate edits during the generative repair process. Furthermore, the autoregressive decoding approach employed by the LLM could potentially impede the efficiency of the repair, thereby hindering the ability to provide timely feedback.
+Identifying and addressing security issues during the early phases of the development lifecycle is critical to mitigating the long-term negative impacts on software systems. Code review is an effective practice that enables developers to check their teammates' code before integration into the codebase. While Large Language Model (LLM)-based methods have significantly advanced the capabilities of automated review comment generation, their effectiveness in identifying and addressing security-related issues remains underexplored.
 
-To tackle these challenges, we propose FastFixer, an efficient and effective approach for programming assignment repair. To assist the LLM in accurately identifying and repairing bugs, we first propose a novel repair-oriented fine-tuning strategy, aiming to enhance the LLM's attention towards learning how to generate the necessary patch and its associated context. Furthermore, to speed up the patch generation, we propose an inference acceleration approach that is specifically tailored for the program repair task.
+SecureReviewer is a novel approach designed to enhance LLMs' ability to identify and resolve security-related issues during code review. Specifically, we first construct a dataset tailored for training and evaluating secure code review capabilities. Leveraging this dataset, we fine-tune the LLM to generate code review comments that can effectively identify security issues and provide fix suggestions using our proposed secure-aware fine-tuning strategy. To reduce hallucinations and improve reliability, we integrate Retrieval-Augmented Generation (RAG) to ground generated comments in domain-specific security knowledge. Additionally, we introduce SecureBLEU, a new evaluation metric designed to assess the effectiveness of review comments in addressing security issues.
 
-The evaluation results demonstrate that FastFixer obtains an overall improvement of 20.46% in assignment fixing when compared to the state-of-the-art baseline. Considering the repair efficiency, FastFixer achieves a remarkable inference speedup of 16.67× compared to the autoregressive decoding algorithm.
+## Repository Structure
+
+### collect_dataset/
+This directory contains scripts for data collection and refinement through:
+- Keyword matching to extract explicitly mentioned security weaknesses in review comments
+- Semantic embedding matching to identify review comments indicating security issues without specific keywords
+- LLM-based filtering and formatting prompts to ensure high-quality review comments
+
+### dataset/
+The complete dataset built using our automated collection and refinement pipeline, including:
+- Training set: Fine-tuning data with security-related code reviews
+- Validation set: For hyperparameter tuning and model selection
+- Test set: For final evaluation, manually refined by security experts
+- template.jsonl: High-quality code review comment templates for RAG
+
+### evaluate/
+Implementation of evaluation metrics:
+- Standard BLEU-4 score implementation
+- SecureBLEU: Our novel metric specifically designed to assess the effectiveness of review comments in addressing security issues
+
+### finetune/
+Fine-tuning scripts with:
+- Secure-aware loss optimization that enhances the model's focus on security-critical tokens
+- Implementation of LoRA (Low-Rank Adaptation) for efficient fine-tuning
+- Hyperparameter configurations for optimal training
+
+### infer/
+Inference-related components:
+- RAG implementation to retrieve and incorporate security knowledge during inference
+- Two-stage generation strategy for improved review comment quality
+- Prompts for evaluating open-source models on secure code review tasks
 
 ## Setup
 
 ### Pre-requisites
-- gcc ≥ 9.30
-- python ≥ 3.8
-- cuda 11.8
-- python ≥ 3.9.6
+- Python ≥ 3.8
+- CUDA 11.8 (for GPU acceleration)
 
-### Install dependencies
+### Installation
 ```bash
 pip install -r requirements.txt
 ```
 
+## Usage
 
-### Model Finetuning
-1. You can change other hyperparameters in the finetune_codellama file, such as learning rate, batch size, deepspeed hypermeters, etc.
-2. Run the following command to finetune the model,Make sure to update the file paths to match your local directory structure:
+### Dataset Collection
+1. Navigate to the `collect_dataset` directory
+2. Update file paths to point to the CodeReviewer dataset's Comment Generation subset
+3. Run the data collection scripts:
 ```bash
-PYTHONPATH=. TOKENIZERS_PARALLELISM=false deepspeed --num_gpus=[num of gpus you want to use] finetune/finetune{}.py 
+python keyword.py
+python embedding.py
 ```
-### Retrieval-augmented Review Generation
-1. You can run the RAG.py script for RAG.
-2. Make sure to update the file paths to match your local directory structure.
+4. Use the provided prompts to filter(llm judge.md) and format(llm Refining.md) the collected review comments
+
+### Model Fine-tuning
+1. Navigate to the `finetune` directory
+2. Adjust hyperparameters in the fine-tuning script as needed (learning rate, batch size, etc.)
+3. Run the fine-tuning script:
+```bash
+PYTHONPATH=. TOKENIZERS_PARALLELISM=false deepspeed --num_gpus=[NUM_GPUS] finetune/finedeepseek.py
+```
+
+### Retrieval-Augmented Review Generation
+1. Navigate to the `infer` directory
+2. Update the file paths to match your local directory structure
+3. Run the RAG script:
 ```bash
 python RAG.py
 ```
-### Evaluate
-1. You can run the test.py script for inference.
-2. Make sure to update the file paths to match your local directory structure.
+
+### Evaluation
+1. Navigate to the `evaluate` directory
+2. Run the evaluation script to compute both BLEU-4 and SecureBLEU metrics:
 ```bash
-python test.py
+python SecureBleu.py
 ```
+
+### Using Open Source Models for Inference
+The `infer/Open source model inference prompt.md` file contains prompts for evaluating various open-source models (GPT-4o, Claude-3.5-sonnet, DeepSeek-V3, etc.) on the secure code review task.
 
