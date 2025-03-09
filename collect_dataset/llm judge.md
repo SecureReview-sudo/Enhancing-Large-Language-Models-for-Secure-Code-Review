@@ -7,7 +7,7 @@ CODE CHANGE PATCH:
 ASSIGNED SECURITY TYPE: {security_type}
 
 SECURITY DESCRIPTION:
-{description}
+{comment}
 
 Please evaluate: Is the assigned security type "{security_type}" appropriate for this code change?
 
