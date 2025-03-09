@@ -190,5 +190,5 @@ def process_jsonl_file(test_file, train_file):
 
 if __name__ == "__main__":
     test_file = "result.jsonl"
-    train_file = "template.jsonl"
+    train_file = "../dataset/template.jsonl"
     process_jsonl_file(test_file, train_file)
