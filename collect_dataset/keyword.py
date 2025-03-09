@@ -6,21 +6,22 @@ from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 import string
 keywords_dict = {
-    "Race Condition": ['race', 'racy'],
-    "Crash": ['crash', 'exception'],
-    "Resource Leak": ['leak'],
-    "Integer Overflow": ['integer', 'overflow', 'signedness', 'widthness', 'underflow'],
-    "Improper Access": ['improper', 'unauthenticated', 'gain access', 'permission', 'hijack', 'authenticate', 'privilege', 'forensic', 'hacker', 'root', 'URL', 'form', 'field', 'sensitive'],
-    "Buffer Overflow": ['buffer', 'overflow', 'stack', 'strcpy', 'strcat', 'strtok', 'gets', 'makepath', 'splitpath', 'heap', 'strlen', 'out of memory'],
-    "Denial of Service (DoS)": ['denial service', 'dos', 'ddos'],
-    "Deadlock": ['deadlock'],
-    "Encryption": ['encrypt', 'decrypt', 'password', 'cipher', 'trust', 'checksum', 'nonce', 'salt', 'crypto', 'mismatch'],
-    "Cross Site Scripting (XSS)": ['cross site', 'CSS', 'XSS', 'malform', 'htmlspecialchar'],
-    "Use After Free": ['use-after-free', 'dynamic'],
-    "Command Injection": ['command', 'exec'],
-    "Cross Site Request Forgery": ['cross site', 'request forgery', 'CSRF', 'XSRF', 'forged', 'cookie', 'xhttp'],
-    "Format String": ['format', 'string', 'printf', 'scanf', 'sanitize'],
-    "SQL Injection": ['SQL', 'SQLI', 'injection', 'ondelete'],
+   "Race Condition": ["race", "racy"],
+    "Buffer Overflow": ["buffer", "overflow", "stack", "strcpy", "strcat", "strtok", "gets", "makepath", "splitpath", "heap", "strlen", "out of memory"],
+    "Integer Overflow": ["integer", "overflow", "signedness", "widthness", "underflow"],
+    "Improper Access": ["improper", "unauthenticated", "gain access", "permission", "hijack", "authenticate", "privilege", "forensic", "hacker", "root", "URL", "form", "field", "sensitive"],
+    "Cross Site Scripting (XSS)": ["crosssite", "CSS", "XSS", "malform", "htmlspecialchar"],
+    "Denial of Service (DoS)": ["denial service", "dos", "ddos"],
+    "Crash": ["crash", "exception"],
+    "Resource Leak": ["leak"],
+    "Deadlock": ["deadlock"],
+    "SQL Injection": ["SQL", "SQLI", "injection", "ondelete"],
+    "Format String": ["format", "string", "printf", "scanf", "sanitize"],
+    "Cross Site Request Forgery": ["crosssite", "request forgery", "CSRF", "XSRF", "forged", "cookie", "xhttp"],
+    "Encryption": ["encrypt", "decrypt", "password", "cipher", "trust", "checksum", "nonce", "salt", "crypto", "mismatch"],
+    "Use After Free": ["use-after-free", "dynamic"],
+    "Command Injection": ["command", "exec"],
+
 }
 
 nltk.download('punkt', quiet=True)
