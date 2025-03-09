@@ -21,7 +21,6 @@ keywords_dict = {
     "Cross Site Request Forgery": ['cross site', 'request forgery', 'CSRF', 'XSRF', 'forged', 'cookie', 'xhttp'],
     "Format String": ['format', 'string', 'printf', 'scanf', 'sanitize'],
     "SQL Injection": ['SQL', 'SQLI', 'injection', 'ondelete'],
-    "Common Keywords": ['security', 'vulnerability', 'vulnerable', 'hole', 'exploit', 'attack', 'bypass', 'backdoor', 'threat', 'expose', 'breach', 'violate', 'fatal', 'blacklist', 'overrun', 'insecure', 'scare', 'scary', 'conflict', 'trojan', 'firewall', 'spyware', 'adware', 'virus', 'ransom', 'malware', 'malicious', 'risk', 'dangling', 'unsafe', 'steal', 'worm', 'phishing', 'cve', 'cwe', 'collusion', 'covert', 'mitm', 'sniffer', 'quarantine', 'scam', 'spam', 'spoof', 'tamper', 'zombie', 'cast', 'xml']
 }
 
 nltk.download('punkt', quiet=True)
