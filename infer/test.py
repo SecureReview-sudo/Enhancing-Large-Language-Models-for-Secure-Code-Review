@@ -47,9 +47,7 @@ def build_instruction_prompt(input_text: str):
 
 
 def load_model_and_tokenizer(model_output_dir, base_model_path):
-
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
     tokenizer = AutoTokenizer.from_pretrained(
         base_model_path,
         trust_remote_code=True
@@ -68,11 +66,9 @@ def load_model_and_tokenizer(model_output_dir, base_model_path):
         device_map="auto"
     )
     model.eval() 
-
     return tokenizer, model
 
 def generate_prediction(input_text, tokenizer, model, max_length=2000):
-
     prompt = build_instruction_prompt(process_diff(input_text))
     inputs = tokenizer(
         prompt,
@@ -80,32 +76,18 @@ def generate_prediction(input_text, tokenizer, model, max_length=2000):
         truncation=True,
         max_length=max_length
     )
-    
     input_ids = inputs['input_ids'].to(model.device)
-
     with torch.no_grad():
         outputs = model.generate(
             input_ids=input_ids,
             max_length=max_length,
-    
             do_sample=False,
-
             pad_token_id=tokenizer.eos_token_id
         )
     generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
     return generated_text
 
-
 def parse_security_review(report):
-    """
-    Parses the generated security review report and extracts four main sections.
-
-    Args:
-        report (str): The generated security review report.
-
-    Returns:
-        dict: A dictionary containing the extracted sections. If a section is missing, its value is None.
-    """
     sections = ["Security type:", "Description:", "Impact:", "Advice:"]
     pattern = r"(" + "|".join(sections) + r")\s*(.*?)\s*(?=(?:" + "|".join(sections) + r")|$)"
     matches = re.findall(pattern, report, re.DOTALL)
@@ -123,33 +105,20 @@ def parse_security_review(report):
     return review
 
 def validate_and_save(test_file_path, output_file_path, tokenizer, model):
-    """
-    Processes each sample in the test set, generates security reviews, and saves the results.
-
-    Args:
-        test_file_path (str): Path to the input JSONL test file.
-        output_file_path (str): Path where the output JSONL will be saved.
-        tokenizer: The tokenizer.
-        model: The fine-tuned model (including PEFT adapters).
-    """
     test_data = []
     with open(test_file_path, 'r', encoding='utf-8') as f:
         for line in f:
             if line.strip():  
                 test_data.append(json.loads(line))
 
-
     for sample in tqdm(test_data, desc="Processing samples"):
         patch = sample.get("patch")
         if not patch:
-
             sample["Security Type"] = None
             sample["Description"] = None
             sample["Impact"] = None
             sample["Advice"] = None
             continue
-
-
         report = generate_prediction(patch, tokenizer, model)
         print(report)  
 
@@ -170,12 +139,10 @@ def validate_and_save(test_file_path, output_file_path, tokenizer, model):
     print(f"Validation complete. Results saved to {output_file_path}")
 
 def main():
-    # Paths to your models and data
     model_output_dir =""
    # base_model_path = "/CodeLlama-7b-instruct-hf" 
     base_model_path = "/deepseek-coder-6.7b-instruct"  
-    #base_model_path='llama'
-    test_file_path = "test.jsonl"  
+    test_file_path = "../dataset/test.jsonl"  
     output_file_path = "result.jsonl" 
     tokenizer, model = load_model_and_tokenizer(model_output_dir, base_model_path)
     validate_and_save(test_file_path, output_file_path, tokenizer, model)
