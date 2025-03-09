@@ -18,8 +18,8 @@ torch.cuda.empty_cache()
 
 DEBUG = False
 FINETUNE_MODEL_PATH = ''
-train_data_file_path = "train.jsonl"
-test_data_file_path = "test.jsonl"
+train_data_file_path ="../dataset/train.jsonl"
+test_data_file_path = "../dataset/valid.jsonl"
 
 def process_diff(diff):
     difflines = diff.split("\n")[1:]
