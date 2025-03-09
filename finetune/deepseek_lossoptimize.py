@@ -281,7 +281,7 @@ class CustomTrainer(Trainer):
 
         weighted_loss_tensor = loss_tensor
 
-        factor_bt = 3
+        factor_bt =2
         if shift_bt_mask is not None:
            weighted_loss_tensor = torch.where(
                shift_bt_mask == 1,
