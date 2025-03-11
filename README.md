@@ -1,4 +1,4 @@
-# SecureReviewer: Enhancing Large Language Models for Secure Code Review
+# SecureReviewer: Enhancing Large Language Models for Secure Code Review through Secure-Aware Fine-Tuning
 
 ## Introduction
 Identifying and addressing security issues during the early phases of the development lifecycle is critical to mitigating the long-term negative impacts on software systems. Code review is an effective practice that enables developers to check their teammates' code before integration into the codebase. While Large Language Model (LLM)-based methods have significantly advanced the capabilities of automated review comment generation, their effectiveness in identifying and addressing security-related issues remains underexplored.
