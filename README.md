@@ -24,6 +24,7 @@ The complete dataset built using our automated collection and refinement pipelin
 Implementation of evaluation metrics:
 - Standard BLEU-4 score implementation
 - SecureBLEU: Our novel metric specifically designed to assess the effectiveness of review comments in addressing security issues
+- Human Review Scoring Criteria：Our manual evaluation standard.
 
 ### finetune/
 Fine-tuning scripts with:
