@@ -43,7 +43,7 @@ def match_keywords(text, keywords_dict):
     matches = {}
     
     for category, keywords in keywords_dict.items():
-        processed_keywords = [preprocess_text(keyword) for keyword in keywords]
+        processed_keywords = [keyword for keyword in keywords]
         matched_keywords = []
 
         for i, keyword in enumerate(keywords):
@@ -59,7 +59,7 @@ with open(input_file_path, 'r', encoding='utf-8') as infile:
     data = json.load(infile)
 
 for record in tqdm(data, desc="Processing"):
-    combined_text = f"{record.get('msg', '')}"
+    combined_text = f"{record.get('msg', '')}{record.get('patch', '')}"
     matches = match_keywords(combined_text, keywords_dict)
     if matches:
         record['matched_keywords'] = matches
