@@ -206,7 +206,7 @@ security_keywords = {
         "crash", "exception", "error", "handle", "handing", "null",
         "logging", "stack trace", "recover"
     ],
-    "Error and State Management": [
+    "State Management": [
         "denial service", "dos", "ddos", "state", "behavior", "error",
       "fallback", "recover", "resilience", "consistency", "failure", "state", "incorrect", "inconsistent", "expose"
     ],
