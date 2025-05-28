@@ -304,20 +304,13 @@ def find_matches(text, keywords):
     code_words = extract_code_words(text)
     return matches, code_words
 
-# 新增函数：检测是否为单一文本块
 def is_single_text_input(data):
-    """检测输入是否为单一文本块"""
     prediction_fields = ['Security Type', 'Description', 'Impact', 'Advice']
     has_structured_fields = any(data.get(field, '').strip() for field in prediction_fields if field != 'Description')
-    
-    # 如果只有Description字段有内容，或者存在comment字段但其他字段为空
     if not has_structured_fields:
         return True
     return False
-
-# 新增函数：处理单一文本输入
 def normalize_single_text_input(data):
-    """将单一文本输入规范化为结构化格式"""
     comment_text = data.get('comment', '').strip()
     description_text = data.get('Description', '').strip()
     single_text = comment_text if comment_text else description_text
@@ -352,7 +345,7 @@ def calculate_weighted_bleu(prediction_dict, reference_dict, is_single_text=Fals
         pred_type = prediction_dict.get('security_type', '').strip().lower()
         ref_type = reference_dict.get('security_type', '').strip().lower()
         if is_single_text:
-            scores['security_type'] = 0.0  # 单一文本时不计算类型分数
+            scores['security_type'] = 0.0  
         else:
             scores['security_type'] = 100.0 if pred_type == ref_type else 0.0
     except:
