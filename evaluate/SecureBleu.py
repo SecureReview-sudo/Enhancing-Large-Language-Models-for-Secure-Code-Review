@@ -658,7 +658,7 @@ def process_jsonl(file_path, security_keywords):
         
         return results
 
-file_path ='/home/liusimiao/gpt0.7.jsonl'
+file_path =
 
 results = process_jsonl(file_path, security_keywords)
 
