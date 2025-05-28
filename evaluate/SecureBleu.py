@@ -1,4 +1,3 @@
-
 import sys, math, re, xml.sax.saxutils
 import subprocess
 import os
@@ -248,6 +247,7 @@ security_keywords = {
 import json
 import re
 total_bleu=[]
+
 def extract_code_words(text):
     pattern = r'`([^`]+)`'
     matches = re.findall(pattern, text)
@@ -303,22 +303,61 @@ def find_matches(text, keywords):
     
     code_words = extract_code_words(text)
     return matches, code_words
-def calculate_weighted_bleu(prediction_dict, reference_dict):
-    weights = {
-        'security_type': 0.3,
-        'description': 0.3,
-        'impact': 0.2,
-        'advice': 0.2
-    }
+
+# 新增函数：检测是否为单一文本块
+def is_single_text_input(data):
+    """检测输入是否为单一文本块"""
+    prediction_fields = ['Security Type', 'Description', 'Impact', 'Advice']
+    has_structured_fields = any(data.get(field, '').strip() for field in prediction_fields if field != 'Description')
+    
+    # 如果只有Description字段有内容，或者存在comment字段但其他字段为空
+    if not has_structured_fields:
+        return True
+    return False
+
+# 新增函数：处理单一文本输入
+def normalize_single_text_input(data):
+    """将单一文本输入规范化为结构化格式"""
+    comment_text = data.get('comment', '').strip()
+    description_text = data.get('Description', '').strip()
+    single_text = comment_text if comment_text else description_text
+    
+    if single_text:
+        data['Security Type'] = data.get('Security Type', 'No Issue').strip() or 'No Issue'
+        data['Description'] = single_text
+        data['Impact'] = data.get('Impact', '').strip()
+        data['Advice'] = data.get('Advice', '').strip()
+    
+    return data
+
+def calculate_weighted_bleu(prediction_dict, reference_dict, is_single_text=False):
+    if is_single_text:
+        weights = {
+            'security_type': 0.0,  
+            'description': 1.0, 
+            'impact': 0.0,
+            'advice': 0.0
+        }
+    else:
+        weights = {
+            'security_type': 0.3,
+            'description': 0.3,
+            'impact': 0.2,
+            'advice': 0.2
+        }
     
     scores = {}
 
     try:
         pred_type = prediction_dict.get('security_type', '').strip().lower()
         ref_type = reference_dict.get('security_type', '').strip().lower()
-        scores['security_type'] = 100.0 if pred_type == ref_type else 0.0
+        if is_single_text:
+            scores['security_type'] = 0.0  # 单一文本时不计算类型分数
+        else:
+            scores['security_type'] = 100.0 if pred_type == ref_type else 0.0
     except:
-        print(prediction_dict.get('description'))
+        scores['security_type'] = 0.0
+
     for key in ['description', 'impact', 'advice']:
         try:
             pred = prediction_dict.get(key, '').strip()
@@ -329,37 +368,36 @@ def calculate_weighted_bleu(prediction_dict, reference_dict):
                 references = [ref]
                 score = bleu_fromstr(predictions, references, rmstop=False)
                 scores[key] = score
-  
             else:
                 scores[key] = 0.0
         except:
             scores[key] = 0.0
-            print(prediction_dict)
  
     weighted_score = sum(scores[k] * weights[k] for k in weights.keys())
     scores['weighted_total'] = weighted_score
 
     return scores
-def find_overlapping_matches(text, list1,listk):
+
+def find_overlapping_matches(text, list1, listk):
     matches = []
     for keyword in list1:
         all_forms = [keyword] + get_synonyms(keyword)
         for form in all_forms:
-     
             pattern = r'\b' + re.escape(form) + r'\b'
             if re.search(pattern, text, re.IGNORECASE):
                 matches.append(keyword)
                 break
     matchesk=[]
     for word in listk:
-           if '`' in word:
+        if '`' in word:
             clean_word = word.replace('`', '')
             for text_word in extract_code_words(text):
                 if clean_word in text_word or text_word in clean_word:
                     matchesk.append(word)
                     break
         
-    return matches,matchesk
+    return matches, matchesk
+
 def process_jsonl(file_path, security_keywords):
     results = []
     
@@ -367,23 +405,86 @@ def process_jsonl(file_path, security_keywords):
         cnt=0
         for line in f:
             data = json.loads(line)
+            is_single_text = is_single_text_input(data)
+            if is_single_text:
+                data = normalize_single_text_input(data)
             
             security_type1 = data.get('security_type')
             security_type2 = data.get('Security Type')
+            
             if security_type1=="No Issue":
                 continue
             cnt+=1
+            
             try:
-                if (security_type1 == security_type2) and (security_type1 != 'No Issue'):
+                if is_single_text:
                     prediction_dict = {
-            
-                    'security_type': data.get('Security Type', ''),
-                    'description': data.get('Description', ''),
-                    'impact': data.get('Impact', ''),
-                    'advice': data.get('Advice', '')
-                }
+                        'security_type': data.get('Security Type', 'No Issue'),
+                        'description': data.get('Description', ''),
+                        'impact': data.get('Impact', ''),
+                        'advice': data.get('Advice', '')
+                    }
                     reference_dict = {
-            
+                        'security_type': data.get('security_type', ''),
+                        'description': data.get('description', ''),
+                        'impact': data.get('impact', ''),
+                        'advice': data.get('advice', '')
+                    }
+                    
+                    scores = calculate_weighted_bleu(prediction_dict, reference_dict, is_single_text=True)
+                    common_keywords = security_keywords.get('Common Keywords', [])
+                    all_keywords = common_keywords
+                    description = data.get('description', '')
+                    impact = data.get('impact', '')
+                    advice = data.get('advice', '')
+                    Description = data.get('Description', '')
+                    Impact = data.get('Impact', '') 
+                    Advice = data.get('Advice', '')
+                    listd, listdk = find_matches(description, all_keywords)
+                    listi, listik = find_matches(impact, all_keywords)
+                    lista, listak = find_matches(advice, all_keywords)
+                    all_ref_keywords = list(set(listd + listi + lista))
+                    all_ref_code_keywords = list(set(listdk + listik + listak))
+                    listD, listDk = find_overlapping_matches(Description, all_ref_keywords, all_ref_code_keywords)
+                    total_ref_keywords = len(all_ref_keywords)
+                    total_ref_code_keywords = len(all_ref_code_keywords)
+                    matched_keywords = len(list(set(listD)))
+                    matched_code_keywords = len(list(set(listDk)))
+                    overlap_ratio_keywords = matched_keywords / total_ref_keywords if total_ref_keywords > 0 else 0
+                    overlap_ratio_code = matched_code_keywords / total_ref_code_keywords if total_ref_code_keywords > 0 else 0
+                    overlap_ratio = 0.5 * overlap_ratio_keywords + 0.5 * overlap_ratio_code
+                    
+                    results.append({
+                        'security_type': security_type1,
+                        'is_single_text': True,
+                        'all_ref_keywords': all_ref_keywords,
+                        'all_ref_code_keywords': all_ref_code_keywords,
+                        'matched_keywords': list(set(listD)),
+                        'matched_code_keywords': list(set(listDk)),
+                        'overlap_ratio': overlap_ratio,
+                        'overlap_ratio_keywords': overlap_ratio_keywords,
+                        'overlap_ratio_code': overlap_ratio_code
+                    })
+                    
+                    print(f"Single text input processing:")
+                    print(f"  Reference keywords: {all_ref_keywords}")
+                    print(f"  Reference code keywords: {all_ref_code_keywords}")
+                    print(f"  Matched keywords: {list(set(listD))}")
+                    print(f"  Matched code keywords: {list(set(listDk))}")
+                    print(f"  Overlap ratio: {overlap_ratio:.3f}")
+                    print(f"  BLEU score: {scores['weighted_total']:.3f}")
+                    
+                    total_bleu.append(scores["weighted_total"]*0.5+overlap_ratio*0.5*100)
+                
+                
+                elif (security_type1 == security_type2) and (security_type1 != 'No Issue'):
+                    prediction_dict = {
+                        'security_type': data.get('Security Type', ''),
+                        'description': data.get('Description', ''),
+                        'impact': data.get('Impact', ''),
+                        'advice': data.get('Advice', '')
+                    }
+                    reference_dict = {
                         'security_type': data.get('security_type', ''),
                         'description': data.get('description', ''),
                         'impact': data.get('impact', ''),
@@ -461,8 +562,8 @@ def process_jsonl(file_path, security_keywords):
                     })
                     total_bleu.append(scores["weighted_total"]*0.5+overlap_ratio*0.5*100)
 
-
                 elif (security_type1 != security_type2) and (security_type2 != 'No Issue'):
+                    # 原有的类型不匹配处理逻辑
                     prediction_dict = {
                     'security_type': data.get('Security Type', ''),
                     'description': data.get('Description', ''),
@@ -551,13 +652,15 @@ def process_jsonl(file_path, security_keywords):
         
                 elif (security_type1!="No Issue") and (security_type2 == 'No Issue'):
                     total_bleu.append(0)
-            except:
+            except Exception as e:
+                print(f"Error processing: {e}")
                 print(data.get('Description', ''))
         
         return results
-file_path ='results.jsonl'
+
+file_path ='/home/liusimiao/gpt0.7.jsonl'
 
 results = process_jsonl(file_path, security_keywords)
 
-print(sum(total_bleu)/len(total_bleu))
-print(len(total_bleu))
+print(f"Average BLEU score: {sum(total_bleu)/len(total_bleu)}")
+print(f"Total samples processed: {len(total_bleu)}")
