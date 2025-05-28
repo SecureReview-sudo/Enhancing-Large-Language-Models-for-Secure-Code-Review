@@ -658,7 +658,7 @@ def process_jsonl(file_path, security_keywords):
         
         return results
 
-file_path =
+file_path ="./result.jsonl"
 
 results = process_jsonl(file_path, security_keywords)
 
