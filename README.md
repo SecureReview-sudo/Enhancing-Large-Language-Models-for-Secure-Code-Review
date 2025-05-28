@@ -84,6 +84,6 @@ python RAG.py
 python SecureBleu.py
 ```
 
-### Using Open Source Models for Inference
-The `infer/Open source model inference prompt.md` file contains prompts for evaluating various open-source models (GPT-4o, Claude-3.5-sonnet, DeepSeek-V3, etc.) on the secure code review task.
+### Inference
+The `infer/prompt.md` file contains prompts for evaluating various open-source models (GPT-4o, Claude-3.5-sonnet, DeepSeek-V3, etc.) on the secure code review task and the fine-tuning instructions.
 
