@@ -36,7 +36,7 @@ Fine-tuning scripts with:
 Inference-related components:
 - RAG implementation to retrieve and incorporate security knowledge during inference
 - Two-stage generation strategy for improved review comment quality
-- Prompts for evaluating open-source models on secure code review tasks
+- Prompts for evaluating various open-source models (GPT-4o, Claude-3.5-sonnet, DeepSeek-V3, etc.) on the secure code review task and the fine-tuning instructions.
 
 ## Setup
 
