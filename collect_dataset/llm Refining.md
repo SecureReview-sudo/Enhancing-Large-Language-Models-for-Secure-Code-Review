@@ -29,7 +29,7 @@ func Batch(chunkSize uint, cb func(offset, limit uint) (uint, error)) error {
 +   return exists, nil
 +}
 ```
-
+```
 ### Original Comment:
 "SQL injection attack vector."
 
@@ -43,6 +43,7 @@ Input Validation
   "impact": "SQL injection vulnerabilities can allow attackers to manipulate queries to access, modify, or delete data arbitrarily, bypass application logic, escalate privileges, or execute administrative operations on the database. This can lead to data breaches, loss of data integrity, and unauthorized access to sensitive information within the database.",
   "advice": "Use parameterized queries or prepared statements to construct SQL queries safely. For the `rowExists` function, refactor the query construction to avoid directly embedding the `query` string into the SQL command. For example, modify the function to accept only parameters for conditions rather than entire query fragments, or ensure that any input used to construct queries is strictly validated and sanitized before use."
 }
+```
 ```
 
 ## Your Task
@@ -58,4 +59,5 @@ Process the following data according to the instructions and example:
 {}
 
 ### Standard Review Comments:
+
 ```
