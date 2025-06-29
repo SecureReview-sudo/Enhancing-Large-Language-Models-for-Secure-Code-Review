@@ -4,6 +4,49 @@
 Identifying and addressing security issues during the early phases of the development lifecycle is critical to mitigating the long-term negative impacts on software systems. Code review is an effective practice that enables developers to check their teammates' code before integration into the codebase. While Large Language Model (LLM)-based methods have significantly advanced the capabilities of automated review comment generation, their effectiveness in identifying and addressing security-related issues remains underexplored.
 
 SecureReviewer is a novel approach designed to enhance LLMs' ability to identify and resolve security-related issues during code review. Specifically, we first construct a dataset tailored for training and evaluating secure code review capabilities. Leveraging this dataset, we fine-tune the LLM to generate code review comments that can effectively identify security issues and provide fix suggestions using our proposed secure-aware fine-tuning strategy. To reduce hallucinations and improve reliability, we integrate Retrieval-Augmented Generation (RAG) to ground generated comments in domain-specific security knowledge. Additionally, we introduce SecureBLEU, a new evaluation metric designed to assess the effectiveness of review comments in addressing security issues.
+## SecureBLEU Metric
+
+### Why SecureBLEU?
+
+Traditional BLEU score fails to adequately assess the effectiveness of security-focused code review comments. As illustrated in the example below, BLEU score can be misleading when evaluating security review quality:
+
+![SecureBLEU Example](dataset/BLEU_example_01.png)
+
+谢谢您的澄清！我理解了，实际上有两种不同的情况：
+
+1. **论文中的例子**（BLEU_example_01.png）：BLEU高但SecureBLEU低 - 表面相似但安全分析错误
+2. **您提供的例子**：BLEU低但SecureBLEU高 - 措辞不同但安全分析准确
+
+让我重新修改README，正确反映这两种对比情况：
+
+```markdown
+# SecureReviewer: Enhancing Large Language Models for Secure Code Review through Secure-Aware Fine-Tuning
+
+## Introduction
+Identifying and addressing security issues during the early phases of the development lifecycle is critical to mitigating the long-term negative impacts on software systems. Code review is an effective practice that enables developers to check their teammates' code before integration into the codebase. While Large Language Model (LLM)-based methods have significantly advanced the capabilities of automated review comment generation, their effectiveness in identifying and addressing security-related issues remains underexplored.
+
+SecureReviewer is a novel approach designed to enhance LLMs' ability to identify and resolve security-related issues during code review. Specifically, we first construct a dataset tailored for training and evaluating secure code review capabilities. Leveraging this dataset, we fine-tune the LLM to generate code review comments that can effectively identify security issues and provide fix suggestions using our proposed secure-aware fine-tuning strategy. To reduce hallucinations and improve reliability, we integrate Retrieval-Augmented Generation (RAG) to ground generated comments in domain-specific security knowledge. Additionally, we introduce SecureBLEU, a new evaluation metric designed to assess the effectiveness of review comments in addressing security issues.
+
+## SecureBLEU Metric
+
+### Why SecureBLEU?
+
+Traditional BLEU score fails to adequately assess the effectiveness of security-focused code review comments. We present two contrasting examples that demonstrate this critical limitation:
+
+#### Example: High BLEU, Low SecureBLEU (Misleading Surface Similarity)
+![SecureBLEU Example](dataset/BLEU_example_01.png)
+
+**Evaluation Results:**
+- **BLEU-4 Score**: 5.57 (low due to different wording from reference)
+- **SecureBLEU Score**: 29.35 (high due to accurate and comprehensive security analysis)
+
+**Why this matters**: Despite different wording, this comment demonstrates:
+- ✅ Correct security type identification (Input Validation)
+- ✅ Accurate vulnerability description (lack of input validation/sanitization)
+- ✅ Realistic impact assessment (injection attacks, unauthorized access, data leakage)
+- ✅ Actionable remediation advice (validation, whitelisting/blacklisting)
+- ✅ Rich security terminology (validation, sanitization, injection, malicious data, etc.)
+
 
 ## Repository Structure
 
