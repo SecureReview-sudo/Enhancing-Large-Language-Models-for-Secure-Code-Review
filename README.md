@@ -14,7 +14,8 @@ Traditional BLEU score fails to adequately assess the effectiveness of security-
 2. **Security Keyword Coverage**: Measures overlap of domain-specific security keywords using predefined dictionaries
 
 **Final Score**: `SecureBLEU = 0.5 × score_bleu + 0.5 × score_keywords`
-The equal weighting (0.5/0.5) was empirically validated through correlation analysis with human expert evaluations, achieving the highest alignment (r=0.7533) compared to alternative weighting schemes.
+The equal weighting **(0.5/0.5)** was empirically validated through correlation analysis with human expert evaluations, achieving the highest alignment (**r=0.7533**) compared to alternative weighting schemes.
+
 As illustrated in the two example below, BLEU score can be misleading when evaluating security review quality:
 ![SecureBLEU Example](dataset/BLEU_example_01.png)
 
