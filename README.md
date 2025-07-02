@@ -8,8 +8,14 @@ SecureReviewer is a novel approach designed to enhance LLMs' ability to identify
 
 ### Why SecureBLEU?
 
-Traditional BLEU score fails to adequately assess the effectiveness of security-focused code review comments. As illustrated in the example below, BLEU score can be misleading when evaluating security review quality:
+Traditional BLEU score fails to adequately assess the effectiveness of security-focused code review comments. SecureBLEU addresses this by combining two components:
 
+1. **Modified BLEU Score**: Evaluates linguistic similarity across review fields (Security Type, Description, Impact, Advice), with exact matching for security type classification
+2. **Security Keyword Coverage**: Measures overlap of domain-specific security keywords using predefined dictionaries
+
+**Final Score**: `SecureBLEU = 0.5 × score_bleu + 0.5 × score_keywords`
+The equal weighting (0.5/0.5) was empirically validated through correlation analysis with human expert evaluations, achieving the highest alignment (r=0.7533) compared to alternative weighting schemes.
+As illustrated in the two example below, BLEU score can be misleading when evaluating security review quality:
 ![SecureBLEU Example](dataset/BLEU_example_01.png)
 
 **Evaluation Results:**
@@ -24,6 +30,22 @@ Traditional BLEU score fails to adequately assess the effectiveness of security-
 - ✅ Rich security terminology (validation, sanitization, injection, malicious data, etc.)
 
 
+![SecureBLEU Example](dataset/BLEU_example_new_01.png)
+**Evaluation Results:**
+- **BLEU-4 Score**: 26.44 (misleadingly high due to surface-level similarity)
+- **SecureBLEU Score**: 12.12 (appropriately low due to incorrect security analysis)
+
+**Why this matters**: Despite surface-level similarity, this comment demonstrates critical flaws:
+- ❌ Incorrect security type identification (misclassified from "Access Control and Information Security" to "Type and Data Handling")
+- ❌ Missing critical security keywords (unauthorized access, misconfiguration, environmental security)
+- ❌ Inadequate vulnerability analysis (fails to address actual access control issues)
+- ❌ Poor impact assessment (doesn't recognize information security implications)
+- ❌ Irrelevant remediation advice (focuses on data handling instead of access control)
+
+## Fair Evaluation Standards
+To ensure fair evaluation, all models are trained/prompted using standardized formats according to our secure code review definition: R = (ST, D, I, A) where ST=Security Type, D=Description, I=Impact, A=Advice.
+
+The specific fine-tuning instructions and prompt templates can be found in **infer/prompt.md** of our replication package to guarantee consistent evaluation across all models.
 ## Repository Structure
 
 ### collect_dataset/
@@ -55,7 +77,7 @@ Fine-tuning scripts with:
 Inference-related components:
 - RAG implementation to retrieve and incorporate security knowledge during inference
 - Two-stage generation strategy for improved review comment quality
-- Prompts for evaluating various open-source models (GPT-4o, Claude-3.5-sonnet, DeepSeek-V3, etc.) on the secure code review task and the fine-tuning instructions.
+- Prompts for evaluating various open-source models (GPT-4o, Claude-3.5-sonnet, DeepSeek-V3, etc.) on the secure code review task.
 
 ## Setup
 
@@ -78,7 +100,7 @@ pip install -r requirements.txt
 python keyword.py
 python embedding.py  //# Uses SO_word2vec model trained on Stack Overflow posts
 ```
-4. Use the provided prompts to filter(llm judge.md) and format(llm Refining.md) the collected review comments
+4. Use the provided prompts to filter(**llm judge.md**) and format(**llm Refining.md**) the collected review comments
 
 ### Model Fine-tuning
 1. Navigate to the `finetune` directory
